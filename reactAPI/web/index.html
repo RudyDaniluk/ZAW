@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pobieranie danych z API w React za pomocą Fetch</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Pobieranie danych z API w React za pomocą Fetch</h1>
+        
+        <h2>Wprowadzenie</h2>
+        <p>W dzisiejszym świecie aplikacji internetowych umiejętność pobierania danych z API jest kluczowa. React, jako popularna biblioteka JavaScript do budowy interfejsów użytkownika, udostępnia proste sposoby integracji z API. W tej prezentacji omówimy, jak używać funkcji <code>fetch</code> do pobierania danych pogodowych z OpenWeatherMap.</p>
+
+        <h2>Co to jest Fetch?</h2>
+        <p>Fetch to interfejs API JavaScript, który pozwala na wykonywanie asynchronicznych żądań sieciowych. Umożliwia to komunikację z serwerem, pobieranie i wysyłanie danych w formacie JSON. Funkcja <code>fetch()</code> zwraca obietnicę (<code>Promise</code>), co pozwala na obsługę asynchroniczności.</p>
+
+        <h2>Podstawowa składnia</h2>
+        <pre><code class="language-javascript">fetch(url, options)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => console.log(data))
+    .catch(error => console.error('There was a problem with the fetch operation:', error));</code></pre>
+
+        <h2>Przykład użycia Fetch w React</h2>
+        <p>Poniżej znajduje się przykład komponentu React, który pobiera dane pogodowe dla Warszawy z OpenWeatherMap:</p>
+        <pre><code class="language-javascript">import React, { useEffect, useState } from 'react';
+
+// Definiujemy nasz komponent jako funkcję
+const App = () => {
+    // Ustawiamy stany dla pogody, ładowania i błędów
+    const [weather, setWeather] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Używamy useEffect do pobierania danych po pierwszym renderowaniu
+    useEffect(() => {
+        fetch('https://api.openweathermap.org/data/2.5/weather?q=Warsaw&appid=4fd89fd989b504bf4cb7e3d8beace553&lang=pl&units=metric')
+            .then(response => {
+                // Sprawdzamy, czy odpowiedź jest poprawna
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                // Przekształcamy odpowiedź w JSON
+                return response.json();
+            })
+            .then(data => {
+                // Ustawiamy stan pogody na otrzymane dane
+                setWeather(data);
+                // Ustawiamy loading na false, ponieważ dane zostały załadowane
+                setLoading(false);
+            })
+            .catch(error => {
+                // W przypadku błędu ustawiamy stan błędu
+                setError(error);
+                // Ustawiamy loading na false
+                setLoading(false);
+            });
+    }, []); // [] oznacza, że efekt wykona się tylko raz
+
+    // Warunki renderowania w zależności od stanu
+    if (loading) return <p className="loading-message">Ładowanie danych...</p>;
+    if (error) return <p className="error-message">Błąd: {error.message}</p>;
+
+    // Renderowanie informacji o pogodzie
+    return (
+        <div className="weather-info">
+            <h2>Pogoda w {weather.name}</h2>
+            <ul className="weather-details">
+                <li>Temperatura: {weather.main.temp} °C</li>
+                <li>Opis: {weather.weather[0].description}</li>
+                <li>Wilgotność: {weather.main.humidity}%</li>
+                <li>Wiatr: {weather.wind.speed} m/s</li>
+            </ul>
+        </div>
+    );
+};
+
+export default App;</code></pre>
+
+        <h2>Obsługa błędów</h2>
+        <p>Ważne jest, aby odpowiednio obsługiwać błędy podczas korzystania z funkcji <code>fetch</code>. W przykładzie powyżej sprawdzamy, czy odpowiedź jest poprawna za pomocą <code>response.ok</code>. Jeśli nie, wyrzucamy błąd, który można złapać w bloku <code>catch</code>.</p>
+
+        <h2>Podsumowanie</h2>
+        <p>W tym wprowadzeniu do pobierania danych z API w React omówiliśmy, jak używać funkcji <code>fetch</code> do asynchronicznego pobierania danych. Pamiętaj o obsłudze błędów oraz o tym, aby zaktualizować stan komponentu w odpowiedni sposób.</p>
+    </div>
+</body>
+</html>
